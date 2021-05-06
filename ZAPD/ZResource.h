@@ -52,6 +52,7 @@ public:
 	ZFile* parent;
 	bool outputDeclaration;
 	uint32_t hash;
+	bool isStatic = false; // Used primarily for overlays where an asset cannot be accessed outside a certain scope.
 
 	ZResource(ZFile* nParent);
 	virtual ~ZResource();

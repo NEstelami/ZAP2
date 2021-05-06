@@ -559,12 +559,14 @@ void ZFile::GenerateSourceFiles(fs::path outputDir)
 				incStr += ".c";
 			}
 
+			if (res->isStatic && !StringHelper::StartsWith(declType, "static"))
+				declType = "static " + declType;
+
 			AddDeclarationIncludeArray(res->GetRawDataIndex(), incStr, res->GetRawDataSize(),
 			                           declType, res->GetName(), 0);
 		}
 		else
 		{
-			// cout << "NOT EXTERN\n";
 			sourceOutput += resSrc;
 		}
 

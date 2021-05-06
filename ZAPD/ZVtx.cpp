@@ -25,7 +25,7 @@ void ZVtx::ParseXML(tinyxml2::XMLElement* reader)
 
 std::string ZVtx::GetSourceTypeName()
 {
-	return "Vtx";
+	return isStatic ? "static Vtx" : "Vtx";
 }
 
 std::string ZVtx::GetSourceOutputCode(const std::string& prefix)

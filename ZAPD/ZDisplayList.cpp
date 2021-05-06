@@ -1950,6 +1950,8 @@ string ZDisplayList::GetSourceOutputCode(const std::string& prefix)
 		{
 			string declaration = "";
 
+			item.second->isStatic = isStatic;
+
 			declaration += item.second->GetSourceOutputCode(prefix);
 			texDeclarations[item.first] = declaration;
 
@@ -1980,7 +1982,7 @@ string ZDisplayList::GetSourceOutputCode(const std::string& prefix)
 						StringHelper::Sprintf("%sTex_%06X", prefix.c_str(), item.first);
 
 					parent->AddDeclarationIncludeArray(
-						item.first, incStr, item.second->GetRawDataSize(), "u64", texName, 0);
+						item.first, incStr, item.second->GetRawDataSize(), item.second->GetSourceTypeName(), texName, 0);
 				}
 			}
 		}
@@ -1989,11 +1991,9 @@ string ZDisplayList::GetSourceOutputCode(const std::string& prefix)
 	if (parent != nullptr)
 	{
 		Declaration* decl = parent->AddDeclarationArray(
-			rawDataIndex, DeclarationAlignment::None, GetRawDataSize(), "Gfx",
+			rawDataIndex, DeclarationAlignment::None, GetRawDataSize(), GetSourceTypeName(),
 			StringHelper::Sprintf("%s", name.c_str()), 0, sourceOutput, true);
 		decl->references = references;
-		// return "";
-		// return sourceOutput;
 	}
 
 	// Iterate through our vertex lists, connect intersecting lists.
@@ -2298,7 +2298,7 @@ std::string ZDisplayList::GetExternalExtension()
 
 std::string ZDisplayList::GetSourceTypeName()
 {
-	return "Gfx";
+	return isStatic ? "static Gfx" : "Gfx";
 }
 
 ZResourceType ZDisplayList::GetResourceType()
