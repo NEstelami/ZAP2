@@ -13,16 +13,18 @@ public:
 	int32_t GetRawDataSize() const;
 
 	uint16_t GetActorId() const;
+	void SetLargestActorName(size_t nameSize);
 
 protected:
 	uint16_t actorNum;
 	int16_t posX;
 	int16_t posY;
 	int16_t posZ;
-	int16_t rotX;
-	int16_t rotY;
-	int16_t rotZ;
+	uint16_t rotX;
+	uint16_t rotY;
+	uint16_t rotZ;
 	uint16_t initVar;
+	size_t largestActorName = 30;
 };
 
 class SetActorList : public ZRoomCommand
@@ -33,10 +35,12 @@ public:
 	void ParseRawData() override;
 	void DeclareReferences(const std::string& prefix) override;
 
+	void ParseRawDataLate() override;
+	void DeclareReferencesLate(const std::string& prefix) override;
+
 	std::string GetBodySourceCode() const override;
 
 	RoomCommand GetRoomCommand() const override;
-	size_t GetRawDataSize() const override;
 	std::string GetCommandCName() const override;
 
 protected:

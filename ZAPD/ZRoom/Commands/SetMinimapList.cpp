@@ -77,11 +77,6 @@ RoomCommand SetMinimapList::GetRoomCommand() const
 	return RoomCommand::SetMinimapList;
 }
 
-size_t SetMinimapList::GetRawDataSize() const
-{
-	return ZRoomCommand::GetRawDataSize() + (minimaps.size() * 10);
-}
-
 MinimapEntry::MinimapEntry(const std::vector<uint8_t>& rawData, uint32_t rawDataIndex)
 	: unk0(BitConverter::ToUInt16BE(rawData, rawDataIndex + 0)),
 	  unk2(BitConverter::ToUInt16BE(rawData, rawDataIndex + 2)),

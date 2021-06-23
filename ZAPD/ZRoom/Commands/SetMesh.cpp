@@ -59,7 +59,6 @@ void GenDListDeclarations(ZRoom* zRoom, ZFile* parent, ZDisplayList* dList)
 		StringHelper::Sprintf("%s%s", zRoom->GetName().c_str(), dList->GetName().c_str());
 
 	dList->SetName(srcVarName);
-	dList->scene = zRoom->scene;
 	std::string sourceOutput = dList->GetSourceOutputCode(zRoom->GetName());
 
 	for (ZDisplayList* otherDList : dList->otherDLists)
@@ -96,11 +95,6 @@ std::string SetMesh::GetBodySourceCode() const
 {
 	std::string list = parent->GetDeclarationPtrName(cmdArg2);
 	return StringHelper::Sprintf("SCENE_CMD_MESH(%s)", list.c_str());
-}
-
-size_t SetMesh::GetRawDataSize() const
-{
-	return ZRoomCommand::GetRawDataSize();
 }
 
 std::string SetMesh::GetCommandCName() const
@@ -653,9 +647,8 @@ void PolygonType2::DeclareReferences(const std::string& prefix)
 		                            polyDlistType, polyDListName, polyDLists.size(), declaration);
 	}
 
-	parent->AddDeclaration(GETSEGOFFSET(end), DeclarationAlignment::Align4,
-	                       DeclarationPadding::Pad16, 4, "static s32", "terminatorMaybe",
-	                       "0x01000000");
+	parent->AddDeclaration(GETSEGOFFSET(end), DeclarationAlignment::Align4, 4, "static s32",
+	                       "terminatorMaybe", "0x01000000");
 }
 
 std::string PolygonType2::GetBodySourceCode() const

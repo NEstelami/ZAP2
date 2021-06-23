@@ -40,13 +40,6 @@ std::string SetPathways::GetBodySourceCode() const
 	return StringHelper::Sprintf("SCENE_CMD_PATH_LIST(%s)", listName.c_str());
 }
 
-size_t SetPathways::GetRawDataSize() const
-{
-	int32_t size = pathwayList.GetRawDataSize();
-
-	return ZRoomCommand::GetRawDataSize() + size;
-}
-
 std::string SetPathways::GetCommandCName() const
 {
 	return "SCmdPathList";

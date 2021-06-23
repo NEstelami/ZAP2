@@ -64,11 +64,6 @@ RoomCommand SetMinimapChests::GetRoomCommand() const
 	return RoomCommand::SetMinimapChests;
 }
 
-size_t SetMinimapChests::GetRawDataSize() const
-{
-	return ZRoomCommand::GetRawDataSize() + (chests.size() * 10);
-}
-
 MinimapChest::MinimapChest(const std::vector<uint8_t>& rawData, uint32_t rawDataIndex)
 	: unk0(BitConverter::ToUInt16BE(rawData, rawDataIndex + 0)),
 	  unk2(BitConverter::ToUInt16BE(rawData, rawDataIndex + 2)),

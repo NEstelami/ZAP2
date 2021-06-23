@@ -1,7 +1,10 @@
 #include "ZSkeleton.h"
+
+#include <cassert>
 #include "BitConverter.h"
 #include "HighLevel/HLModelIntermediette.h"
 #include "StringHelper.h"
+
 
 REGISTER_ZFILENODE(Skeleton, ZSkeleton);
 REGISTER_ZFILENODE(LimbTable, ZLimbTable);
@@ -301,8 +304,12 @@ std::string ZLimbTable::GetSourceTypeName() const
 	case ZLimbType::Curve:
 	case ZLimbType::Legacy:
 		return StringHelper::Sprintf("%s*", ZLimb::GetSourceTypeName(limbType));
-		;
+
+	case ZLimbType::Invalid:
+		// TODO: Proper error message or something.
+		assert("Invalid limb type\n");
 	}
+	return "";
 }
 
 ZResourceType ZLimbTable::GetResourceType() const

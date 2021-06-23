@@ -410,9 +410,6 @@
     <ClInclude Include="Vec3s.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\json\include\nlohmann\json.hpp">
-      <Filter>Header Files\Libraries</Filter>
-    </ClInclude>
     <ClInclude Include="..\lib\stb\stb_image.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>

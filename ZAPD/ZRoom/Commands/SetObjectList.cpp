@@ -57,11 +57,6 @@ std::string SetObjectList::GetBodySourceCode() const
 	return StringHelper::Sprintf("SCENE_CMD_OBJECT_LIST(%i, %s)", objects.size(), listName.c_str());
 }
 
-size_t SetObjectList::GetRawDataSize() const
-{
-	return ZRoomCommand::GetRawDataSize() + (objects.size() * 2);
-}
-
 std::string SetObjectList::GetCommandCName() const
 {
 	return "SCmdObjectList";

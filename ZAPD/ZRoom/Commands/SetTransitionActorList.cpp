@@ -56,11 +56,6 @@ std::string SetTransitionActorList::GetBodySourceCode() const
 	                             listName.c_str());
 }
 
-size_t SetTransitionActorList::GetRawDataSize() const
-{
-	return ZRoomCommand::GetRawDataSize() + (transitionActors.size() * 16);
-}
-
 std::string SetTransitionActorList::GetCommandCName() const
 {
 	return "SCmdTransiActorList";

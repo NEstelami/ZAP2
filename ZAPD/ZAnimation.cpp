@@ -256,8 +256,8 @@ void ZCurveAnimation::ParseRawData()
 	unk_0C = BitConverter::ToInt16BE(rawData, rawDataIndex + 12);
 	unk_10 = BitConverter::ToInt16BE(rawData, rawDataIndex + 14);
 
-	limbCount =
-		BitConverter::ToUInt8BE(rawData, Seg2Filespace(skelOffset, parent->baseAddress) + 4);
+	uint32_t limbCountAddress = Seg2Filespace(skelOffset, parent->baseAddress) + 4;
+	limbCount = BitConverter::ToUInt8BE(rawData, limbCountAddress);
 
 	size_t transformDataSize = 0;
 	size_t copyValuesSize = 0;

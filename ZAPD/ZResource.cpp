@@ -114,11 +114,23 @@ void ZResource::ParseXML(tinyxml2::XMLElement* reader)
 	}
 }
 
-void ZResource::Save(const fs::path& outFolder)
+void ZResource::ParseRawData()
 {
 }
 
-void ZResource::PreGenSourceFiles()
+void ZResource::DeclareReferences(const std::string& prefix)
+{
+}
+
+void ZResource::ParseRawDataLate()
+{
+}
+
+void ZResource::DeclareReferencesLate(const std::string& prefix)
+{
+}
+
+void ZResource::Save(const fs::path& outFolder)
 {
 }
 
@@ -187,21 +199,8 @@ std::string ZResource::GetSourceOutputHeader(const std::string& prefix)
 	return "";
 }
 
-void ZResource::ParseRawData()
-{
-}
-
-void ZResource::DeclareReferences(const std::string& prefix)
-{
-}
-
 void ZResource::GenerateHLIntermediette(HLFileIntermediette& hlFile)
 {
-}
-
-std::string ZResource::GetSourceTypeName() const
-{
-	return "u8";
 }
 
 ZResourceType ZResource::GetResourceType() const

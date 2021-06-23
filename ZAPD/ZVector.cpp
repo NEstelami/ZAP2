@@ -12,6 +12,7 @@ ZVector::ZVector(ZFile* nParent) : ZResource(nParent)
 {
 	scalarType = ZScalarType::ZSCALAR_NONE;
 	dimensions = 0;
+
 	RegisterRequiredAttribute("Type");
 	RegisterRequiredAttribute("Dimensions");
 }
