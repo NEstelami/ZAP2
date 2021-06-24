@@ -306,9 +306,7 @@ void BgImage::ParseRawData()
 ZBackground* BgImage::MakeBackground(segptr_t ptr, const std::string& prefix)
 {
 	if (ptr == 0)
-	{
 		return nullptr;
-	}
 
 	uint32_t backAddress = Seg2Filespace(ptr, parent->baseAddress);
 

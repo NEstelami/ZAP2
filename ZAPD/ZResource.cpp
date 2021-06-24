@@ -195,10 +195,6 @@ void ZResource::DeclareReferences(const std::string& prefix)
 {
 }
 
-void ZResource::GenerateHLIntermediette(HLFileIntermediette& hlFile)
-{
-}
-
 std::string ZResource::GetSourceTypeName() const
 {
 	return "u8";

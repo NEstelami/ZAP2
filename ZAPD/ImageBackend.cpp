@@ -216,7 +216,7 @@ void ImageBackend::WritePng(const char* filename)
 
 void ImageBackend::WritePng(const fs::path& filename)
 {
-	WritePng(filename.c_str());
+	WritePng((char*)filename.c_str());
 }
 
 void ImageBackend::SetTextureData(const std::vector<std::vector<RGBAPixel>>& texData,

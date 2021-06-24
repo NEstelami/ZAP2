@@ -14,7 +14,7 @@ public:
 	std::string GetCommandCName() const override;
 	RoomCommand GetRoomCommand() const override;
 
-private:
 	uint8_t cameraMovement;
 	uint32_t mapHighlight;
+private:
 };

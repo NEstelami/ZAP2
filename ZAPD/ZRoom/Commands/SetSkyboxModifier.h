@@ -5,6 +5,9 @@
 class SetSkyboxModifier : public ZRoomCommand
 {
 public:
+	uint8_t disableSky;
+	uint8_t disableSunMoon;
+
 	SetSkyboxModifier(ZFile* nParent);
 
 	void ParseRawData() override;
@@ -15,6 +18,4 @@ public:
 	RoomCommand GetRoomCommand() const override;
 
 private:
-	uint8_t disableSky;
-	uint8_t disableSunMoon;
 };

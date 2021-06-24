@@ -3,7 +3,6 @@
 #include "BitConverter.h"
 #include "File.h"
 #include "Globals.h"
-#include "HighLevel/HLAnimationIntermediette.h"
 #include "StringHelper.h"
 #include "ZFile.h"
 
@@ -26,14 +25,6 @@ void ZAnimation::ParseRawData()
 
 void ZAnimation::Save(const fs::path& outFolder)
 {
-	if (Globals::Instance->testMode)
-	{
-		HLAnimationIntermediette* anim = HLAnimationIntermediette::FromZAnimation(this);
-		std::string xml = anim->OutputXML();
-		File::WriteAllText(outFolder / (name + ".anmi"), xml);
-
-		delete anim;
-	}
 }
 
 std::string ZAnimation::GetSourceOutputCode(const std::string& prefix)

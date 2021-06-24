@@ -8,7 +8,6 @@
 #include <math.h>
 #include "BitConverter.h"
 #include "Globals.h"
-#include "HighLevel/HLModelIntermediette.h"
 #include "OutputFormatter.h"
 #include "StringHelper.h"
 #include "gfxd.h"
@@ -2092,6 +2091,7 @@ bool ZDisplayList::TextureGenCheck(ZRoom* scene, ZFile* parent, std::string pref
 			if (scene->parent->GetDeclaration(texAddr) == nullptr)
 			{
 				ZTexture* tex = scene->parent->GetTextureResource(texAddr);
+
 				if (tex != nullptr)
 					tex->isPalette = texIsPalette;
 				else
@@ -2166,12 +2166,6 @@ TextureType ZDisplayList::TexFormatToTexType(F3DZEXTexFormats fmt, F3DZEXTexSize
 	return TextureType::RGBA16bpp;
 }
 
-void ZDisplayList::GenerateHLIntermediette(HLFileIntermediette& hlFile)
-{
-	HLModelIntermediette* mdl = (HLModelIntermediette*)&hlFile;
-	HLModelIntermediette::FromZDisplayList(mdl, this);
-	mdl->blocks.push_back(new HLTerminator());
-}
 
 bool ZDisplayList::IsExternalResource() const
 {

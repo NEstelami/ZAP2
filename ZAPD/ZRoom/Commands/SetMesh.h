@@ -168,6 +168,9 @@ protected:
 class SetMesh : public ZRoomCommand
 {
 public:
+	uint8_t data;
+	uint8_t meshHeaderType;
+
 	SetMesh(ZFile* nParent);
 
 	void ParseRawData() override;
@@ -180,7 +183,6 @@ public:
 	std::string GetCommandCName() const override;
 
 private:
-	uint8_t meshHeaderType;
 	std::shared_ptr<PolygonTypeBase> polyType;
 
 	std::string GenDListExterns(ZDisplayList* dList);
