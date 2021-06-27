@@ -108,5 +108,7 @@ ZAPD also accepts the following list of extra parameters:
   - Could be useful for looking at raw data or testing.
   - Can be used only in `e` or `bsf` modes.
 - `-tm MODE`: Test Mode (enables certain experimental features). To enable it, set `MODE` to `1`.
+- `-wno` / `--warn-no-offsets` : Enable warnings for nodes that dont have offsets specified. Takes priority over `-eno`/ `--error-no-offsets`.
+- `-eno`/ `--error-no-offsets` : Enable errors for nodes that dont have offsets specified.
 
 Additionally, you can pass the flag `--version` to see the current ZAPD version. If that flag is passed, ZAPD will ignore any other parameter passed.
