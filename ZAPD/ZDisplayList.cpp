@@ -2147,7 +2147,7 @@ TextureType ZDisplayList::TexFormatToTexType(F3DZEXTexFormats fmt, F3DZEXTexSize
 	else if (fmt == F3DZEXTexFormats::G_IM_FMT_IA)
 	{
 		if (siz == F3DZEXTexSizes::G_IM_SIZ_4b)
-			return TextureType::Grayscale4bpp;
+			return TextureType::GrayscaleAlpha4bpp;
 		else if (siz == F3DZEXTexSizes::G_IM_SIZ_8b)
 			return TextureType::GrayscaleAlpha8bpp;
 		else if (siz == F3DZEXTexSizes::G_IM_SIZ_16b)
