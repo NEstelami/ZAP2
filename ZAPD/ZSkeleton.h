@@ -26,9 +26,10 @@ public:
 	void ParseXML(tinyxml2::XMLElement* reader) override;
 	void ParseRawData() override;
 	void DeclareReferences(const std::string& prefix) override;
-	std::string GetBodySourceCode() const override;
 
-	std::string GetSourceOutputCode(const std::string& prefix) override;
+	Declaration* DeclareVar(const std::string& prefix, const std::string& bodyStr) override;
+
+	std::string GetBodySourceCode() const override;
 
 	std::string GetSourceTypeName() const override;
 	ZResourceType GetResourceType() const override;
@@ -53,20 +54,19 @@ public:
 
 	ZSkeleton(ZFile* nParent);
 
-	void ExtractFromXML(tinyxml2::XMLElement* reader, uint32_t nRawDataIndex) override;
-
 	void ParseXML(tinyxml2::XMLElement* reader) override;
 	void ParseRawData() override;
 	void DeclareReferences(const std::string& prefix) override;
+
 	std::string GetBodySourceCode() const override;
 
-	std::string GetSourceOutputCode(const std::string& prefix) override;
 	void GenerateHLIntermediette(HLFileIntermediette& hlFile) override;
-
-	size_t GetRawDataSize() const override;
 
 	std::string GetSourceTypeName() const override;
 	ZResourceType GetResourceType() const override;
+
+	size_t GetRawDataSize() const override;
+	DeclarationAlignment GetDeclarationAlignment() const override;
 
 	segptr_t GetAddress();
 	uint8_t GetLimbCount();

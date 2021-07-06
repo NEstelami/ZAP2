@@ -19,10 +19,17 @@ struct TexturePoolEntry
 	fs::path path = "";  // Path to Shared Texture
 };
 
+class ExternalFile
+{
+public:
+	fs::path xmlPath, outPath;
+
+	ExternalFile(fs::path nXmlPath, fs::path nOutPath);
+};
+
 class GameConfig
 {
 public:
-	std::map<int32_t, std::string> segmentRefs;
 	std::map<int32_t, ZFile*> segmentRefFiles;
 	std::map<uint32_t, std::string> symbolMap;
 	std::vector<std::string> actorList;
@@ -31,6 +38,10 @@ public:
 
 	// ZBackground
 	uint32_t bgScreenWidth = 320, bgScreenHeight = 240;
+
+	// ExternalFile
+	fs::path externalXmlFolder;
+	std::vector<ExternalFile> externalFiles;
 
 	GameConfig() = default;
 };
@@ -56,19 +67,33 @@ public:
 	bool verboseUnaccounted = false;
 
 	std::vector<ZFile*> files;
+	std::vector<ZFile*> externalFiles;
 	std::vector<int32_t> segments;
-	std::map<int32_t, std::string> segmentRefs;
-	std::map<int32_t, ZFile*> segmentRefFiles;
-	ZRoom* lastScene;
+	std::map<int32_t, std::vector<ZFile*>> segmentRefFiles;
 	std::map<uint32_t, std::string> symbolMap;
 
 	Globals();
-	std::string FindSymbolSegRef(int32_t segNumber, uint32_t symbolAddress);
+	~Globals();
+
 	void ReadConfigFile(const std::string& configFilePath);
 	void ReadTexturePool(const std::string& texturePoolXmlPath);
 	void GenSymbolMap(const std::string& symbolMapPath);
 	void AddSegment(int32_t segment, ZFile* file);
 	bool HasSegment(int32_t segment);
+
+	/**
+	 * Search in every file (and the symbol map) for the `segAddress` passed as parameter.
+	 * If the segment of `currentFile` is the same segment of `segAddress`, then that file will be
+	 * used only, otherwise, the search will be performed in every other file.
+	 * The name of that variable will be stored in the `declName` parameter.
+	 * Returns `true` if the address is found. `false` otherwise,
+	 * in which case `declName` will be set to the address formatted as a pointer.
+	 */
+	bool GetSegmentedPtrName(segptr_t segAddress, ZFile* currentFile,
+	                         const std::string& expectedType, std::string& declName);
+
+	bool GetSegmentedArrayIndexedName(segptr_t segAddress, size_t elementSize, ZFile* currentFile,
+	                                  const std::string& expectedType, std::string& declName);
 };
 
 /*

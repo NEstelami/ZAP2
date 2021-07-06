@@ -21,20 +21,7 @@ ZTexture::ZTexture(ZFile* nParent) : ZResource(nParent)
 	RegisterOptionalAttribute("TlutOffset");
 }
 
-void ZTexture::ExtractFromXML(tinyxml2::XMLElement* reader, uint32_t nRawDataIndex)
-{
-	ZResource::ExtractFromXML(reader, nRawDataIndex);
-
-	auto filepath = Globals::Instance->outputPath / fs::path(name).stem();
-
-	std::string incStr =
-		StringHelper::Sprintf("%s.%s.inc.c", filepath.c_str(), GetExternalExtension().c_str());
-
-	parent->AddDeclarationIncludeArray(rawDataIndex, incStr, GetRawDataSize(), GetSourceTypeName(),
-	                                   name, 0);
-}
-
-void ZTexture::FromBinary(uint32_t nRawDataIndex, int32_t nWidth, int32_t nHeight,
+void ZTexture::ExtractFromBinary(uint32_t nRawDataIndex, int32_t nWidth, int32_t nHeight,
                           TextureType nType, bool nIsPalette)
 {
 	width = nWidth;
@@ -44,6 +31,10 @@ void ZTexture::FromBinary(uint32_t nRawDataIndex, int32_t nWidth, int32_t nHeigh
 	isPalette = nIsPalette;
 	name = GetDefaultName(parent->GetName());
 	outName = name;
+
+	// Don't parse raw data of external files
+	if (parent->GetMode() == ZFileMode::ExternalFile)
+		return;
 
 	ParseRawData();
 	CalcHash();
@@ -345,7 +336,7 @@ void ZTexture::DeclareReferences(const std::string& prefix)
 			                                           GetExternalExtension().c_str());
 
 			tlut = new ZTexture(parent);
-			tlut->FromBinary(tlutOffset, tlutDim, tlutDim, TextureType::RGBA16bpp, true);
+			tlut->ExtractFromBinary(tlutOffset, tlutDim, tlutDim, TextureType::RGBA16bpp, true);
 			parent->AddTextureResource(tlutOffset, tlut);
 			parent->AddDeclarationIncludeArray(tlutOffset, incStr, tlut->GetRawDataSize(),
 			                                   tlut->GetSourceTypeName(), tlut->GetName(), 0);
@@ -686,7 +677,7 @@ std::string ZTexture::GetIMSizFromType()
 	}
 }
 
-std::string ZTexture::GetDefaultName(const std::string& prefix)
+std::string ZTexture::GetDefaultName(const std::string& prefix) const
 {
 	const char* suffix = "Tex";
 	if (isPalette)
@@ -745,6 +736,22 @@ void ZTexture::Save(const fs::path& outFolder)
 #ifdef TEXTURE_DEBUG
 	printf("\n");
 #endif
+}
+
+Declaration* ZTexture::DeclareVar(const std::string& prefix, const std::string& bodyStr)
+{
+	std::string auxName = name;
+
+	if (name == "")
+		auxName = GetDefaultName(prefix);
+
+	auto filepath = Globals::Instance->outputPath / fs::path(auxName).stem();
+
+	std::string incStr =
+		StringHelper::Sprintf("%s.%s.inc.c", filepath.c_str(), GetExternalExtension().c_str());
+
+	return parent->AddDeclarationIncludeArray(rawDataIndex, incStr, GetRawDataSize(),
+	                                          GetSourceTypeName(), auxName, 0);
 }
 
 std::string ZTexture::GetBodySourceCode() const
@@ -839,11 +846,11 @@ TextureType ZTexture::GetTextureTypeFromString(std::string str)
 	{
 		texType = TextureType::RGBA16bpp;
 #ifdef DEPRECATION_ON
-		fprintf(stderr,
-		        "ZTexture::GetTextureTypeFromString: Deprecation warning.\n"
-		        "\t The texture format 'rgb5a1' is currently deprecated, and will be removed in a future "
-		        "version.\n"
-		        "\t Use the format 'rgba16' instead.\n");
+		fprintf(stderr, "ZTexture::GetTextureTypeFromString: Deprecation warning.\n"
+		                "\t The texture format 'rgb5a1' is currently deprecated, and will be "
+		                "removed in a future "
+		                "version.\n"
+		                "\t Use the format 'rgba16' instead.\n");
 #endif
 	}
 	else if (str == "i4")

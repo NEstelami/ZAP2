@@ -25,7 +25,7 @@ public:
 	HLIntermediette();
 	~HLIntermediette();
 
-	virtual std::string OutputCode();
+	virtual std::string OutputCode(HLModelIntermediette* parent);
 	virtual std::string OutputOBJ();
 	virtual void OutputAssimp(aiScene* scene, std::vector<aiVector3D>* verts);
 	virtual void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root);
@@ -73,7 +73,7 @@ public:
 	std::string ToOBJFile();
 	std::string ToAssimpFile();
 
-	std::string OutputCode();
+	std::string OutputCode(HLModelIntermediette* parent);
 	std::string OutputXML();
 
 	template <typename T>
@@ -91,9 +91,9 @@ public:
 
 	HLTextureIntermediette();
 
-	virtual void InitFromXML(tinyxml2::XMLElement* xmlElement);
-	virtual std::string OutputCode();
-	virtual void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root);
+	void InitFromXML(tinyxml2::XMLElement* xmlElement) override;
+	std::string OutputCode(HLModelIntermediette* parent) override;
+	void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root) override;
 };
 
 class HLSetTranslation : public HLIntermediette
@@ -137,7 +137,7 @@ public:
 
 	HLMaterialIntermediette();
 
-	virtual std::string OutputCode();
+	virtual std::string OutputCode(HLModelIntermediette* parent);
 	virtual void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parent);
 	virtual void InitFromXML(tinyxml2::XMLElement* xmlElement);
 };
@@ -162,7 +162,7 @@ public:
 
 	virtual void InitFromXML(tinyxml2::XMLElement* verticesElement);
 	void InitFromVertices(std::vector<ZVtx> dispListVertices);
-	virtual std::string OutputCode(HLModelIntermediette* parent);
+	std::string OutputCode(HLModelIntermediette* parent);
 	virtual std::string OutputOBJ();
 	virtual void OutputAssimp(aiScene* scene, std::vector<aiVector3D>* verts);
 	virtual void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root);
@@ -245,7 +245,8 @@ public:
 	HLMeshIntermediette();
 
 	void InitFromXML(tinyxml2::XMLElement* xmlElement);
-	std::string OutputCode(std::string materialName);
+	using HLIntermediette::OutputCode;
+	virtual std::string OutputCode(std::string materialName);
 	virtual std::string OutputOBJ();
 	virtual void OutputAssimp(aiScene* scene, std::vector<aiVector3D>* verts);
 	virtual void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root);
@@ -282,8 +283,8 @@ public:
 
 	HLDisplayListIntermediette();
 
-	virtual std::string OutputCode();
-	virtual void InitFromXML(tinyxml2::XMLElement* xmlElement);
+	std::string OutputCode(HLModelIntermediette* parent) override;
+	void InitFromXML(tinyxml2::XMLElement* xmlElement) override;
 };
 
 class HLLimbCommand
@@ -306,7 +307,7 @@ public:
 
 	HLLimbIntermediette();
 
-	void InitFromXML(tinyxml2::XMLElement* xmlElement);
-	std::string OutputCode();
-	virtual void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root);
+	void InitFromXML(tinyxml2::XMLElement* xmlElement) override;
+	std::string OutputCode(HLModelIntermediette* parent) override;
+	void OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root) override;
 };

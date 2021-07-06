@@ -1,5 +1,7 @@
 #include "SetLightList.h"
+
 #include "BitConverter.h"
+#include "Globals.h"
 #include "StringHelper.h"
 
 SetLightList::SetLightList(ZFile* nParent) : ZRoomCommand(nParent)
@@ -49,7 +51,8 @@ void SetLightList::DeclareReferences(const std::string& prefix)
 
 std::string SetLightList::GetBodySourceCode() const
 {
-	std::string listName = parent->GetDeclarationPtrName(cmdArg2);
+	std::string listName;
+	Globals::Instance->GetSegmentedPtrName(cmdArg2, parent, "LightInfo", listName);
 	return StringHelper::Sprintf("SCENE_CMD_LIGHT_LIST(%i, %s)", numLights, listName.c_str());
 }
 

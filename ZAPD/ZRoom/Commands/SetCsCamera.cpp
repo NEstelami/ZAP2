@@ -1,6 +1,7 @@
 #include "SetCsCamera.h"
 
 #include "BitConverter.h"
+#include "Globals.h"
 #include "StringHelper.h"
 #include "ZFile.h"
 #include "ZRoom/ZRoom.h"
@@ -42,9 +43,6 @@ void SetCsCamera::ParseRawData()
 			points.push_back(vec);
 		}
 	}
-
-	if (segmentOffset != 0)
-		parent->AddDeclarationPlaceholder(segmentOffset);
 }
 
 void SetCsCamera::DeclareReferences(const std::string& prefix)
@@ -55,9 +53,7 @@ void SetCsCamera::DeclareReferences(const std::string& prefix)
 		size_t index = 0;
 		for (auto& point : points)
 		{
-			declaration +=
-				StringHelper::Sprintf("\t%s, //0x%06X", point.GetBodySourceCode().c_str(),
-			                          cameras.at(0).segmentOffset + (index * 6));
+			declaration += StringHelper::Sprintf("\t{ %s },", point.GetBodySourceCode().c_str());
 
 			if (index < points.size() - 1)
 				declaration += "\n";
@@ -76,7 +72,9 @@ void SetCsCamera::DeclareReferences(const std::string& prefix)
 
 	if (!cameras.empty())
 	{
-		std::string camPointsName = parent->GetDeclarationName(cameras.at(0).GetSegmentOffset());
+		std::string camPointsName;
+		Globals::Instance->GetSegmentedPtrName(cameras.at(0).GetCamAddress(), parent,
+		                                       "Vec3s", camPointsName);
 		std::string declaration = "";
 
 		size_t index = 0;
@@ -107,7 +105,8 @@ void SetCsCamera::DeclareReferences(const std::string& prefix)
 
 std::string SetCsCamera::GetBodySourceCode() const
 {
-	std::string listName = parent->GetDeclarationPtrName(cmdArg2);
+	std::string listName;
+	Globals::Instance->GetSegmentedPtrName(cmdArg2, parent, "CsCameraEntry", listName);
 	return StringHelper::Sprintf("SCENE_CMD_ACTOR_CUTSCENE_CAM_LIST(%i, %s)", cameras.size(),
 	                             listName.c_str());
 }

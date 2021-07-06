@@ -21,10 +21,10 @@ public:
 		return split[split.size() - 1];
 	};
 
-	static std::string GetFileNameWithoutExtension(const std::string& input)
+	static std::string GetFileNameWithoutExtension(const fs::path& input)
 	{
-		std::vector<std::string> split = StringHelper::Split(input, "/");
-		return split[split.size() - 1].substr(0, split[split.size() - 1].find_last_of("."));
+		// https://en.cppreference.com/w/cpp/filesystem/path/stem
+		return input.stem();
 	};
 
 	static std::string GetFileNameExtension(const std::string& input)

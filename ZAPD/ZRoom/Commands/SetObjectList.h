@@ -8,7 +8,7 @@ public:
 	SetObjectList(ZFile* nParent);
 
 	void ParseRawData() override;
-	void DeclareReferences(const std::string& prefix);
+	void DeclareReferences(const std::string& prefix) override;
 
 	std::string GetBodySourceCode() const override;
 

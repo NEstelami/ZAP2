@@ -28,7 +28,6 @@ public:
 
 	ZAnimation(ZFile* nParent);
 
-	std::string GetSourceOutputCode(const std::string& prefix) override;
 	ZResourceType GetResourceType() const override;
 
 protected:
@@ -39,20 +38,22 @@ protected:
 class ZNormalAnimation : public ZAnimation
 {
 public:
-	std::vector<uint16_t> rotationValues;
-	std::vector<RotationIndex> rotationIndices;
-	uint32_t rotationValuesSeg;
-	uint32_t rotationIndicesSeg;
-	int16_t limit;
-
 	ZNormalAnimation(ZFile* nParent);
 
-	std::string GetSourceOutputCode(const std::string& prefix) override;
+	void ParseRawData() override;
+	void DeclareReferences(const std::string& prefix) override;
+
+	std::string GetBodySourceCode() const override;
+
 	size_t GetRawDataSize() const override;
 	std::string GetSourceTypeName() const override;
 
 protected:
-	virtual void ParseRawData() override;
+	std::vector<uint16_t> rotationValues;
+	std::vector<RotationIndex> rotationIndices;
+	segptr_t rotationValuesAddress = 0;
+	segptr_t rotationIndicesAddress = 0;
+	int16_t limit = 0;
 };
 
 class ZLinkAnimation : public ZAnimation
@@ -62,12 +63,12 @@ public:
 
 	ZLinkAnimation(ZFile* nParent);
 
-	std::string GetSourceOutputCode(const std::string& prefix) override;
+	void ParseRawData() override;
+
+	std::string GetBodySourceCode() const override;
+
 	size_t GetRawDataSize() const override;
 	std::string GetSourceTypeName() const override;
-
-protected:
-	virtual void ParseRawData() override;
 };
 
 class TransformData
@@ -121,16 +122,16 @@ protected:
 	std::vector<int16_t> copyValuesArr;
 
 public:
-	ZCurveAnimation();
 	ZCurveAnimation(ZFile* nParent);
 
 	void ParseXML(tinyxml2::XMLElement* reader) override;
 	void ParseRawData() override;
-	void ExtractFromXML(tinyxml2::XMLElement* reader, uint32_t nRawDataIndex) override;
-
 	void DeclareReferences(const std::string& prefix) override;
+
+	std::string GetBodySourceCode() const override;
+
 	size_t GetRawDataSize() const override;
-	std::string GetSourceOutputCode(const std::string& prefix) override;
+	DeclarationAlignment GetDeclarationAlignment() const override;
 
 	std::string GetSourceTypeName() const override;
 };
@@ -166,9 +167,8 @@ public:
 
 	void ParseRawData() override;
 	void DeclareReferences(const std::string& prefix) override;
-	std::string GetBodySourceCode() const override;
 
-	std::string GetSourceOutputCode(const std::string& prefix) override;
+	std::string GetBodySourceCode() const override;
 
 	std::string GetSourceTypeName() const override;
 

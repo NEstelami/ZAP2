@@ -7,9 +7,9 @@ class SetCollisionHeader : public ZRoomCommand
 {
 public:
 	SetCollisionHeader(ZFile* nParent);
-	~SetCollisionHeader();
 
 	void ParseRawData() override;
+	void DeclareReferences(const std::string& prefix) override;
 
 	std::string GetBodySourceCode() const override;
 

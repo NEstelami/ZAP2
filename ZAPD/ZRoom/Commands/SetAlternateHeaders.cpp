@@ -1,6 +1,7 @@
 #include "SetAlternateHeaders.h"
 
 #include "BitConverter.h"
+#include "Globals.h"
 #include "StringHelper.h"
 #include "ZFile.h"
 
@@ -10,8 +11,12 @@ SetAlternateHeaders::SetAlternateHeaders(ZFile* nParent) : ZRoomCommand(nParent)
 
 void SetAlternateHeaders::DeclareReferences(const std::string& prefix)
 {
-	if (segmentOffset != 0)
-		parent->AddDeclarationPlaceholder(segmentOffset);
+	if (cmdArg2 != 0)
+	{
+		std::string varName =
+			StringHelper::Sprintf("%sAlternateHeaders0x%06X", prefix.c_str(), segmentOffset);
+		parent->AddDeclarationPlaceholder(segmentOffset, varName);
+	}
 }
 
 void SetAlternateHeaders::ParseRawDataLate()
@@ -46,16 +51,17 @@ void SetAlternateHeaders::DeclareReferencesLate(const std::string& prefix)
 				declaration += "\n";
 		}
 
-		parent->AddDeclarationArray(
-			segmentOffset, DeclarationAlignment::None, headers.size() * 4, "SCmdBase*",
-			StringHelper::Sprintf("%sAlternateHeaders0x%06X", prefix.c_str(), segmentOffset), 0,
-			declaration);
+		std::string varName =
+			StringHelper::Sprintf("%sAlternateHeaders0x%06X", prefix.c_str(), segmentOffset);
+		parent->AddDeclarationArray(segmentOffset, GetDeclarationAlignment(), headers.size() * 4,
+		                            "SCmdBase*", varName, 0, declaration);
 	}
 }
 
 std::string SetAlternateHeaders::GetBodySourceCode() const
 {
-	std::string listName = parent->GetDeclarationPtrName(cmdArg2);
+	std::string listName;
+	Globals::Instance->GetSegmentedPtrName(cmdArg2, parent, "SCmdBase*", listName);
 	return StringHelper::Sprintf("SCENE_CMD_ALTERNATE_HEADER_LIST(%s)", listName.c_str());
 }
 

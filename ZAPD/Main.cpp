@@ -27,7 +27,8 @@
 
 using namespace tinyxml2;
 
-bool Parse(const fs::path& xmlFilePath, const fs::path& basePath, ZFileMode fileMode);
+bool Parse(const fs::path& xmlFilePath, const fs::path& basePath, const fs::path& outPath,
+           ZFileMode fileMode);
 
 void BuildAssetTexture(const fs::path& pngFilePath, TextureType texType, const fs::path& outPath);
 void BuildAssetBackground(const fs::path& imageFilePath, const fs::path& outPath);
@@ -252,8 +253,21 @@ int main(int argc, char* argv[])
 
 	if (fileMode == ZFileMode::Extract || fileMode == ZFileMode::BuildSourceFile)
 	{
-		bool parseSuccessful =
-			Parse(Globals::Instance->inputPath, Globals::Instance->baseRomPath, fileMode);
+		bool parseSuccessful;
+
+		for (auto& extFile : Globals::Instance->cfg.externalFiles)
+		{
+			fs::path externalXmlFilePath =
+				Globals::Instance->cfg.externalXmlFolder / extFile.xmlPath;
+			parseSuccessful = Parse(externalXmlFilePath, Globals::Instance->baseRomPath,
+			                        extFile.outPath, ZFileMode::ExternalFile);
+
+			if (!parseSuccessful)
+				return 1;
+		}
+
+		parseSuccessful = Parse(Globals::Instance->inputPath, Globals::Instance->baseRomPath,
+		                        Globals::Instance->outputPath, fileMode);
 
 		if (!parseSuccessful)
 			return 1;
@@ -294,11 +308,11 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-bool Parse(const fs::path& xmlFilePath, const fs::path& basePath, ZFileMode fileMode)
+bool Parse(const fs::path& xmlFilePath, const fs::path& basePath, const fs::path& outPath,
+           ZFileMode fileMode)
 {
 	XMLDocument doc;
-	XMLError eResult = doc.LoadFile(xmlFilePath.string().c_str());
-
+	XMLError eResult = doc.LoadFile(xmlFilePath.c_str());
 	if (eResult != tinyxml2::XML_SUCCESS)
 	{
 		fprintf(stderr, "Invalid xml file: '%s'\n", xmlFilePath.c_str());
@@ -306,7 +320,6 @@ bool Parse(const fs::path& xmlFilePath, const fs::path& basePath, ZFileMode file
 	}
 
 	XMLNode* root = doc.FirstChild();
-
 	if (root == nullptr)
 	{
 		fprintf(stderr, "Missing Root tag in xml file: '%s'\n", xmlFilePath.c_str());
@@ -318,31 +331,58 @@ bool Parse(const fs::path& xmlFilePath, const fs::path& basePath, ZFileMode file
 	{
 		if (std::string(child->Name()) == "File")
 		{
-			ZFile* file = new ZFile(fileMode, child, basePath, "", xmlFilePath, false);
+			ZFile* file = new ZFile(fileMode, child, basePath, outPath, "", xmlFilePath, false);
 			Globals::Instance->files.push_back(file);
+			if (fileMode == ZFileMode::ExternalFile)
+				Globals::Instance->externalFiles.push_back(file);
+
+			if (fileMode == ZFileMode::ExternalFile)
+				file->isExternalFile = true;
+		}
+		else if (std::string(child->Name()) == "ExternalFile")
+		{
+			const char* xmlPathValue = child->Attribute("XmlPath");
+			if (xmlPathValue == nullptr)
+			{
+				throw std::runtime_error(StringHelper::Sprintf(
+					"Parse: Fatal error in '%s'.\n"
+					"\t Missing 'XmlPath' attribute in `ExternalFile` element.\n",
+					xmlFilePath.c_str()));
+			}
+			const char* outPathValue = child->Attribute("OutPath");
+			if (outPathValue == nullptr)
+			{
+				throw std::runtime_error(StringHelper::Sprintf(
+					"Parse: Fatal error in '%s'.\n"
+					"\t Missing 'OutPath' attribute in `ExternalFile` element.\n",
+					xmlFilePath.c_str()));
+			}
+
+			fs::path externalXmlFilePath =
+				Globals::Instance->cfg.externalXmlFolder / fs::path(xmlPathValue);
+			fs::path externalOutFilePath = fs::path(outPathValue);
+			// Recursion. What can go wrong?
+			Parse(externalXmlFilePath, basePath, externalOutFilePath, ZFileMode::ExternalFile);
 		}
 		else
 		{
-			throw std::runtime_error(
-				StringHelper::Sprintf("Parse: Fatal error in '%s'.\n\t Found a resource outside of "
-			                          "a File element: '%s'\n",
-			                          xmlFilePath.c_str(), child->Name()));
+			throw std::runtime_error(StringHelper::Sprintf(
+				"Parse: Fatal error in '%s'.\n\t A resource was found outside of "
+				"a File element: '%s'\n",
+				xmlFilePath.c_str(), child->Name()));
 		}
 	}
 
-	for (ZFile* file : Globals::Instance->files)
+	if (fileMode != ZFileMode::ExternalFile)
 	{
-		if (fileMode == ZFileMode::BuildSourceFile)
-			file->BuildSourceFile();
-		else
-			file->ExtractResources();
+		for (ZFile* file : Globals::Instance->files)
+		{
+			if (fileMode == ZFileMode::BuildSourceFile)
+				file->BuildSourceFile();
+			else
+				file->ExtractResources();
+		}
 	}
-
-	// All done, free files
-	for (ZFile* file : Globals::Instance->files)
-		delete file;
-
-	Globals::Instance->files.clear();
 
 	return true;
 }
@@ -376,7 +416,7 @@ void BuildAssetBlob(const fs::path& blobFilePath, const fs::path& outPath)
 	ZBlob* blob = ZBlob::FromFile(blobFilePath.string());
 	std::string name = outPath.stem().string();  // filename without extension
 
-	std::string src = blob->GetSourceOutputCode(name);
+	std::string src = blob->GetBodySourceCode();
 
 	File::WriteAllText(outPath.string(), src);
 
@@ -388,7 +428,7 @@ void BuildAssetModelIntermediette(const fs::path& outPath)
 	XMLDocument doc;
 
 	HLModelIntermediette* mdl = HLModelIntermediette::FromXML(doc.RootElement());
-	std::string output = mdl->OutputCode();
+	std::string output = mdl->OutputCode(nullptr);
 
 	File::WriteAllText(outPath.string(), output);
 
@@ -398,7 +438,7 @@ void BuildAssetModelIntermediette(const fs::path& outPath)
 void BuildAssetAnimationIntermediette(const fs::path& animPath, const fs::path& outPath)
 {
 	std::vector<std::string> split = StringHelper::Split(outPath.string(), "/");
-	ZFile* file = new ZFile(split[split.size() - 2]);
+	ZFile* file = new ZFile(outPath, split[split.size() - 2]);
 	HLAnimationIntermediette* anim = HLAnimationIntermediette::FromXML(animPath.string());
 	ZAnimation* zAnim = anim->ToZAnimation();
 	zAnim->SetName(Path::GetFileNameWithoutExtension(split[split.size() - 1]));

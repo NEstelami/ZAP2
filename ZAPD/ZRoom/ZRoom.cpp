@@ -64,14 +64,6 @@ void ZRoom::ExtractFromXML(tinyxml2::XMLElement* reader, uint32_t nRawDataIndex)
 {
 	ZResource::ExtractFromXML(reader, nRawDataIndex);
 
-	scene = Globals::Instance->lastScene;
-
-	if (std::string(reader->Name()) == "Scene")
-	{
-		scene = this;
-		Globals::Instance->lastScene = this;
-	}
-
 	uint32_t cmdCount = UINT32_MAX;
 
 	if (name == "syotes_room_0")
@@ -363,11 +355,11 @@ void ZRoom::ProcessCommandSets()
  */
 void ZRoom::SyotesRoomHack()
 {
-	PolygonType2 poly(parent, parent->GetRawData(), 0, this);
+	PolygonType2 poly(parent, 0, this);
 
 	poly.ParseRawData();
 	poly.DeclareReferences(GetName());
-	parent->AddDeclaration(0, DeclarationAlignment::Align4, poly.GetRawDataSize(),
+	parent->AddDeclaration(0, poly.GetDeclarationAlignment(), poly.GetRawDataSize(),
 	                       poly.GetSourceTypeName(), poly.GetDefaultName(GetName()),
 	                       poly.GetBodySourceCode());
 }
@@ -421,11 +413,6 @@ size_t ZRoom::GetCommandSizeFromNeighbor(ZRoomCommand* cmd)
 	return 0;
 }
 
-std::string ZRoom::GetSourceOutputHeader(const std::string& prefix)
-{
-	return "\n" + extDefines + "\n\n";
-}
-
 std::string ZRoom::GetSourceOutputCode(const std::string& prefix)
 {
 	sourceOutput = "";
@@ -435,8 +422,13 @@ std::string ZRoom::GetSourceOutputCode(const std::string& prefix)
 	sourceOutput += "#include \"z64cutscene_commands.h\"\n";
 	sourceOutput += "#include \"variables.h\"\n";
 
-	if (scene != nullptr)
-		sourceOutput += scene->parent->GetHeaderInclude();
+	if (Globals::Instance->HasSegment(SEGMENT_SCENE))
+	{
+		for (const auto& sceneFile : Globals::Instance->segmentRefFiles[SEGMENT_SCENE])
+		{
+			sourceOutput += sceneFile->GetHeaderInclude();
+		}
+	}
 
 	ProcessCommandSets();
 

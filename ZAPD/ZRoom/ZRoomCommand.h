@@ -67,8 +67,6 @@ public:
 	virtual void ParseRawDataLate();
 	virtual void DeclareReferencesLate(const std::string& prefix);
 
-	virtual std::string GetBodySourceCode() const = 0;
-
 	ZResourceType GetResourceType() const override;
 
 	// Getters/Setters

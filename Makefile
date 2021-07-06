@@ -11,10 +11,11 @@ CXXFLAGS += -fpic -std=c++17 -Wall -fno-omit-frame-pointer
 
 ifneq ($(DEBUG),0)
   OPTIMIZATION_ON = 0
-  DEPRECATION_OFF = 1
-  CFLAGS += -g3 -DDEVELOPMENT
-  COPYCHECK_ARGS += --devel
   DEPRECATION_ON = 0
+  CFLAGS += -g3 -DDEVELOPMENT -D_DEBUG
+  COPYCHECK_ARGS += --devel
+else
+  CFLAGS += -Werror
 endif
 
 ifeq ($(OPTIMIZATION_ON),0)
@@ -38,7 +39,7 @@ ifneq ($(UNAME), Darwin)
     LDFLAGS += -Wl,-export-dynamic -lstdc++fs
 endif
 
-SRC_DIRS := ZAPD ZAPD/ZRoom ZAPD/ZRoom/Commands ZAPD/Overlays ZAPD/HighLevel
+SRC_DIRS := ZAPD ZAPD/ZRoom ZAPD/ZRoom/Commands ZAPD/Overlays ZAPD/HighLevel ZAPD/OtherStructs
 
 ZAPD_CPP_FILES := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
 ZAPD_H_FILES   := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.h))

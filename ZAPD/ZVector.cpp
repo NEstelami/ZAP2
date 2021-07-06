@@ -33,9 +33,8 @@ void ZVector::ParseRawData()
 
 	for (uint32_t i = 0; i < dimensions; i++)
 	{
-		ZScalar scalar(scalarType, parent);
-		scalar.rawDataIndex = currentRawDataIndex;
-		scalar.ParseRawData();
+		ZScalar scalar(parent);
+		scalar.ExtractFromBinary(currentRawDataIndex, scalarType);
 		currentRawDataIndex += scalar.GetRawDataSize();
 
 		scalars.push_back(scalar);
@@ -85,24 +84,25 @@ std::string ZVector::GetBodySourceCode() const
 {
 	std::string body = "";
 
-	for (size_t i = 0; i < this->scalars.size(); i++)
-		body += StringHelper::Sprintf("%6s, ", scalars[i].GetBodySourceCode().c_str());
+	for (size_t i = 0; i < scalars.size(); i++)
+	{
+		body += StringHelper::Sprintf("%6s", scalars[i].GetBodySourceCode().c_str());
 
-	return "{ " + body + "}";
-}
+		if (i + 1 < scalars.size())
+			body += ", ";
+	}
 
-std::string ZVector::GetSourceOutputCode(const std::string& prefix)
-{
-	if (parent != nullptr)
-		parent->AddDeclaration(rawDataIndex, DeclarationAlignment::None, GetRawDataSize(),
-		                       GetSourceTypeName(), GetName(), GetBodySourceCode());
-
-	return "";
+	return body;
 }
 
 ZResourceType ZVector::GetResourceType() const
 {
 	return ZResourceType::Vector;
+}
+
+DeclarationAlignment ZVector::GetDeclarationAlignment() const
+{
+	return scalars.at(0).GetDeclarationAlignment();
 }
 
 void ZVector::SetScalarType(ZScalarType type)

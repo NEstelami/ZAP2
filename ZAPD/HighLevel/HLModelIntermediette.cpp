@@ -336,13 +336,13 @@ std::string HLModelIntermediette::ToAssimpFile()
 	return "";
 }
 
-std::string HLModelIntermediette::OutputCode()
+std::string HLModelIntermediette::OutputCode(HLModelIntermediette* parent)
 {
 	std::string output = "";
 
 	for (HLIntermediette* block : blocks)
 	{
-		std::string code = block->OutputCode();
+		std::string code = block->OutputCode(parent);
 
 		output += code;
 
@@ -413,7 +413,7 @@ void HLIntermediette::InitFromXML(XMLElement* xmlElement)
 	name = xmlElement->Attribute("Name");
 }
 
-std::string HLIntermediette::OutputCode()
+std::string HLIntermediette::OutputCode(HLModelIntermediette* parent)
 {
 	return "";
 }
@@ -487,8 +487,7 @@ std::string HLVerticesIntermediette::OutputCode(HLModelIntermediette* parent)
 
 	for (auto v : vertices)
 	{
-		output += StringHelper::Sprintf("    { %i, %i, %i, %i, %i, %i, %i, %i, %i, %i },\n", v.x,
-		                                v.y, v.z, v.flag, v.s, v.t, v.r, v.g, v.b, v.a);
+		output += StringHelper::Sprintf("    { %s },\n", v.GetBodySourceCode().c_str());
 	}
 
 	output += StringHelper::Sprintf("};\n");
@@ -500,11 +499,13 @@ std::string HLVerticesIntermediette::OutputOBJ()
 {
 	std::string output = "";
 
+	/*
 	for (auto& v : vertices)
 	{
-		output += StringHelper::Sprintf("v %f %f %f %i %i %i %i\n", (float)v.x * 0.1f,
-		                                (float)v.y * 0.1f, (float)v.z * 0.1f, v.r, v.g, v.b, v.a);
+	    output += StringHelper::Sprintf("v %f %f %f %i %i %i %i\n", (float)v.x * 0.1f,
+	                                    (float)v.y * 0.1f, (float)v.z * 0.1f, v.r, v.g, v.b, v.a);
 	}
+	*/
 
 	return output;
 }
@@ -513,10 +514,12 @@ void HLVerticesIntermediette::OutputAssimp(aiScene* scene, std::vector<aiVector3
 {
 	verts->clear();
 
+	/*
 	for (size_t i = 0; i < vertices.size(); i++)
 	{
-		verts->push_back(aiVector3D(vertices[i].x, vertices[i].y, vertices[i].z));
+	    verts->push_back(aiVector3D(vertices[i].x, vertices[i].y, vertices[i].z));
 	}
+	*/
 }
 
 void HLVerticesIntermediette::OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* root)
@@ -525,22 +528,24 @@ void HLVerticesIntermediette::OutputXML(tinyxml2::XMLDocument* doc, tinyxml2::XM
 
 	element->SetAttribute("Name", name.c_str());
 
+	/*
 	for (auto& v : vertices)
 	{
-		XMLElement* vElem = doc->NewElement("Vertex");
-		vElem->SetAttribute("X", v.x);
-		vElem->SetAttribute("Y", v.y);
-		vElem->SetAttribute("Z", v.z);
-		vElem->SetAttribute("Flag", v.flag);
-		vElem->SetAttribute("S", v.s);
-		vElem->SetAttribute("T", v.t);
-		vElem->SetAttribute("R", v.r);
-		vElem->SetAttribute("G", v.g);
-		vElem->SetAttribute("B", v.b);
-		vElem->SetAttribute("A", v.a);
+	    XMLElement* vElem = doc->NewElement("Vertex");
+	    vElem->SetAttribute("X", v.x);
+	    vElem->SetAttribute("Y", v.y);
+	    vElem->SetAttribute("Z", v.z);
+	    vElem->SetAttribute("Flag", v.flag);
+	    vElem->SetAttribute("S", v.s);
+	    vElem->SetAttribute("T", v.t);
+	    vElem->SetAttribute("R", v.r);
+	    vElem->SetAttribute("G", v.g);
+	    vElem->SetAttribute("B", v.b);
+	    vElem->SetAttribute("A", v.a);
 
-		element->InsertEndChild(vElem);
+	    element->InsertEndChild(vElem);
 	}
+	*/
 
 	root->InsertEndChild(element);
 }
@@ -793,7 +798,7 @@ void HLMaterialIntermediette::InitFromXML(tinyxml2::XMLElement* xmlElement)
 	clrL = xmlElement->IntAttribute("ClrL");
 }
 
-std::string HLMaterialIntermediette::OutputCode()
+std::string HLMaterialIntermediette::OutputCode(HLModelIntermediette* parent)
 {
 	return "";
 }
@@ -821,7 +826,7 @@ HLDisplayListIntermediette::HLDisplayListIntermediette()
 	commands = std::vector<HLDisplayListCommand*>();
 }
 
-std::string HLDisplayListIntermediette::OutputCode()
+std::string HLDisplayListIntermediette::OutputCode(HLModelIntermediette* parent)
 {
 	return std::string();
 }
@@ -889,7 +894,7 @@ void HLTextureIntermediette::InitFromXML(tinyxml2::XMLElement* xmlElement)
 	                       ZTexture::GetTextureTypeFromString(format));
 }
 
-std::string HLTextureIntermediette::OutputCode()
+std::string HLTextureIntermediette::OutputCode(HLModelIntermediette* parent)
 {
 	return StringHelper::Sprintf("#include <../%s/%s.inc.c>", Globals::Instance->outputPath.c_str(),
 	                             name.c_str());
@@ -1066,7 +1071,7 @@ void HLLimbIntermediette::InitFromXML(tinyxml2::XMLElement* xmlElement)
 	}
 }
 
-std::string HLLimbIntermediette::OutputCode()
+std::string HLLimbIntermediette::OutputCode(HLModelIntermediette* parent)
 {
 	std::string output = "";
 

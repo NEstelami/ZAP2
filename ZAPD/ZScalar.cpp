@@ -14,9 +14,16 @@ ZScalar::ZScalar(ZFile* nParent) : ZResource(nParent)
 	RegisterRequiredAttribute("Type");
 }
 
-ZScalar::ZScalar(const ZScalarType scalarType, ZFile* nParent) : ZScalar(nParent)
+void ZScalar::ExtractFromBinary(uint32_t nRawDataIndex, ZScalarType nScalarType)
 {
-	this->scalarType = scalarType;
+	rawDataIndex = nRawDataIndex;
+	scalarType = nScalarType;
+
+	// Don't parse raw data of external files
+	if (parent->GetMode() == ZFileMode::ExternalFile)
+		return;
+
+	ParseRawData();
 }
 
 void ZScalar::ParseXML(tinyxml2::XMLElement* reader)
@@ -154,11 +161,6 @@ size_t ZScalar::MapTypeToSize(const ZScalarType scalarType)
 	}
 }
 
-size_t ZScalar::GetRawDataSize() const
-{
-	return ZScalar::MapTypeToSize(scalarType);
-}
-
 void ZScalar::ParseRawData()
 {
 	const auto& rawData = parent->GetRawData();
@@ -247,15 +249,6 @@ std::string ZScalar::GetBodySourceCode() const
 	}
 }
 
-std::string ZScalar::GetSourceOutputCode(const std::string& prefix)
-{
-	if (parent != nullptr)
-		parent->AddDeclaration(rawDataIndex, DeclarationAlignment::None, GetRawDataSize(),
-		                       GetSourceTypeName(), GetName(), GetBodySourceCode());
-
-	return "";
-}
-
 ZResourceType ZScalar::GetResourceType() const
 {
 	return ZResourceType::Scalar;
@@ -264,4 +257,22 @@ ZResourceType ZScalar::GetResourceType() const
 bool ZScalar::DoesSupportArray() const
 {
 	return true;
+}
+
+size_t ZScalar::GetRawDataSize() const
+{
+	return ZScalar::MapTypeToSize(scalarType);
+}
+
+DeclarationAlignment ZScalar::GetDeclarationAlignment() const
+{
+	switch (scalarType)
+	{
+	case ZScalarType::ZSCALAR_S64:
+	case ZScalarType::ZSCALAR_U64:
+	case ZScalarType::ZSCALAR_F64:
+		return DeclarationAlignment::Align8;
+	default:
+		return DeclarationAlignment::Align4;
+	}
 }

@@ -37,8 +37,7 @@ void SetActorList::DeclareReferences(const std::string& prefix)
 		for (const auto& entry : actors)
 		{
 			declaration +=
-				StringHelper::Sprintf("\t{ %s }, // 0x%06X", entry.GetBodySourceCode().c_str(),
-			                          segmentOffset + (index * 16));
+				StringHelper::Sprintf("\t{ %s },", entry.GetBodySourceCode().c_str());
 
 			if (index < actors.size() - 1)
 				declaration += "\n";
@@ -53,7 +52,7 @@ void SetActorList::DeclareReferences(const std::string& prefix)
 			padding = DeclarationPadding::None;
 
 		parent->AddDeclarationArray(
-			segmentOffset, DeclarationAlignment::Align4, padding,
+			segmentOffset, GetDeclarationAlignment(), padding,
 			actors.size() * entry.GetRawDataSize(), entry.GetSourceTypeName(),
 			StringHelper::Sprintf("%sActorList_%06X", prefix.c_str(), segmentOffset),
 			GetActorListArraySize(), declaration);
@@ -62,7 +61,8 @@ void SetActorList::DeclareReferences(const std::string& prefix)
 
 std::string SetActorList::GetBodySourceCode() const
 {
-	std::string listName = parent->GetDeclarationPtrName(cmdArg2);
+	std::string listName;
+	Globals::Instance->GetSegmentedPtrName(cmdArg2, parent, "ActorEntry", listName);
 	return StringHelper::Sprintf("SCENE_CMD_ACTOR_LIST(%i, %s)", numActors, listName.c_str());
 }
 

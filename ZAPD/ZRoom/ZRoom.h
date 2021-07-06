@@ -21,17 +21,13 @@ class ZRoom : public ZResource
 protected:
 	std::vector<ZRoomCommand*> commands;
 
-	std::string GetSourceOutputHeader(const std::string& prefix) override;
 	std::string GetSourceOutputCode(const std::string& prefix) override;
 	void ProcessCommandSets();
 	void SyotesRoomHack();
 
 public:
-	ZRoom* scene;
 	std::vector<CommandSet> commandSets;
 	int32_t roomCount;  // Only valid for scenes
-
-	std::string extDefines;
 
 	ZRoom(ZFile* nParent);
 	virtual ~ZRoom();

@@ -28,13 +28,28 @@ void ZResource::ExtractFromXML(tinyxml2::XMLElement* reader, uint32_t nRawDataIn
 	if (reader != nullptr)
 		ParseXML(reader);
 
+	// Don't parse raw data of external files
+	if (parent->GetMode() == ZFileMode::ExternalFile)
+		return;
+
 	ParseRawData();
 	CalcHash();
+
+	if (!isInner)
+	{
+		Declaration* decl = DeclareVar(parent->GetName(), "");
+		if (decl != nullptr)
+			decl->declaredInXml = true;
+	}
 }
 
 void ZResource::ExtractFromFile(uint32_t nRawDataIndex)
 {
 	rawDataIndex = nRawDataIndex;
+
+	// Don't parse raw data of external files
+	if (parent->GetMode() == ZFileMode::ExternalFile)
+		return;
 
 	ParseRawData();
 	CalcHash();
@@ -157,6 +172,16 @@ std::string ZResource::GetExternalExtension() const
 	return "";
 }
 
+DeclarationAlignment ZResource::GetDeclarationAlignment() const
+{
+	return DeclarationAlignment::Align4;
+}
+
+DeclarationPadding ZResource::GetDeclarationPadding() const
+{
+	return DeclarationPadding::None;
+}
+
 bool ZResource::WasDeclaredInXml() const
 {
 	return declaredInXml;
@@ -172,13 +197,38 @@ void ZResource::SetRawDataIndex(uint32_t value)
 	rawDataIndex = value;
 }
 
+Declaration* ZResource::DeclareVar(const std::string& prefix, const std::string& bodyStr)
+{
+	std::string auxName = name;
+
+	if (name == "")
+		auxName = GetDefaultName(prefix);
+
+	return parent->AddDeclaration(rawDataIndex, GetDeclarationAlignment(), GetDeclarationPadding(),
+	                              GetRawDataSize(), GetSourceTypeName(), auxName, bodyStr);
+}
+
 std::string ZResource::GetBodySourceCode() const
 {
 	return "ERROR";
 }
 
+std::string ZResource::GetDefaultName(const std::string& prefix) const
+{
+	return StringHelper::Sprintf("%s%s_%06X", prefix.c_str(), GetSourceTypeName().c_str(),
+	                             rawDataIndex);
+}
+
 std::string ZResource::GetSourceOutputCode(const std::string& prefix)
 {
+	std::string declaration = GetBodySourceCode();
+
+	Declaration* decl = parent->GetDeclaration(rawDataIndex);
+	if (decl == nullptr || decl->isPlaceholder)
+		DeclareVar(prefix, declaration);
+	else
+		decl->text = declaration;
+
 	return "";
 }
 

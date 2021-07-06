@@ -20,8 +20,6 @@
 #define GETSEGOFFSET(x) (x & 0x00FFFFFF)
 #define GETSEGNUM(x) ((x >> 24) & 0xFF)
 
-typedef uint32_t segptr_t;
-
 class ZFile;
 class HLFileIntermediette;
 
@@ -77,7 +75,10 @@ public:
 	virtual void ParseXML(tinyxml2::XMLElement* reader);
 	virtual void ParseRawData();
 	virtual void DeclareReferences(const std::string& prefix);
+
+	virtual Declaration* DeclareVar(const std::string& prefix, const std::string& bodyStr);
 	virtual std::string GetBodySourceCode() const;
+	virtual std::string GetDefaultName(const std::string& prefix) const;
 
 	virtual std::string GetSourceOutputCode(const std::string& prefix);
 	virtual std::string GetSourceOutputHeader(const std::string& prefix);
@@ -101,6 +102,8 @@ public:
 	virtual uint32_t GetRawDataIndex() const;
 	virtual void SetRawDataIndex(uint32_t value);
 	virtual size_t GetRawDataSize() const = 0;
+	virtual DeclarationAlignment GetDeclarationAlignment() const;
+	virtual DeclarationPadding GetDeclarationPadding() const;
 	void SetInnerNode(bool inner);
 	bool WasDeclaredInXml() const;
 

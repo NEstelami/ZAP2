@@ -41,7 +41,7 @@ void SetCutscenes::ParseRawData()
 			currentPtr += 8;
 
 			declaration += StringHelper::Sprintf(
-				"    { %sCutsceneData0x%06X, 0x%04X, 0x%02X, 0x%02X },", zRoom->GetName().c_str(),
+				"    { %sCutsceneData_%06X, 0x%04X, 0x%02X, 0x%02X },", zRoom->GetName().c_str(),
 				entry.segmentOffset, entry.exit, entry.entrance, entry.flag);
 
 			if (i < numCutscenes - 1)
@@ -84,7 +84,8 @@ SetCutscenes::~SetCutscenes()
 
 std::string SetCutscenes::GetBodySourceCode() const
 {
-	std::string listName = parent->GetDeclarationPtrName(cmdArg2);
+	std::string listName;
+	Globals::Instance->GetSegmentedPtrName(cmdArg2, parent, "CutsceneData", listName);
 
 	if (Globals::Instance->game == ZGame::MM_RETAIL)
 		return StringHelper::Sprintf("SCENE_CMD_CUTSCENE_LIST(%i, %s)", numCutscenes,
